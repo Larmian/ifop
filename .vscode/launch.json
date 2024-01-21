@@ -1,0 +1,240 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'ifop'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'ifop copy file'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=ifop",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "example"
+                }
+            },
+            "args": [
+                "copy",
+                "--src",
+                "${workspaceFolder}\\test\\copy_test\\src\\file1",
+                "--dest",
+                "${workspaceFolder}\\test\\copy_test\\dest"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'ifop copy files'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=ifop",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "example"
+                }
+            },
+            "args": [
+                "copy",
+                "--src",
+                "${workspaceFolder}\\test\\delete_test",
+                "--dest",
+                "${workspaceFolder}\\test\\copy_test\\dest"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'ifop delete file'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=ifop",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "example"
+                }
+            },
+            "args": [
+                "delete",
+                "--target",
+                "${workspaceFolder}\\test\\copy_test\\dest\\delete_test"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'ifop delete files'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=ifop",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "example"
+                }
+            },
+            "args": [
+                "delete",
+                "--target",
+                "${workspaceFolder}\\test\\copy_test\\dest\\delete_test\\file1,${workspaceFolder}\\test\\copy_test\\dest\\delete_test\\folder1\\file1,${workspaceFolder}\\test\\copy_test\\dest\\delete_test\\folder1\\folder1\\file1,${workspaceFolder}\\test\\copy_test\\dest\\delete_test\\folder1\\folder1,${workspaceFolder}\\test\\copy_test\\dest\\delete_test\\folder1",
+                "--flags",
+                "FOF_ALLOWUNDO|FOF_NORECURSION"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'ifop rename file'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=ifop",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "example"
+                }
+            },
+            "args": [
+                "rename",
+                "--src",
+                "${workspaceFolder}\\test\\rename_test\\file2",
+                "--dest",
+                "rename_file1",
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'ifop rename files'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=ifop",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "example"
+                }
+            },
+            "args": [
+                "rename",
+                "--src",
+                "${workspaceFolder}\\test\\rename_test\\folder1\\file,${workspaceFolder}\\test\\rename_test\\file",
+                "--dest",
+                "rename_file2"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'ifop move file'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=ifop",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "example"
+                }
+            },
+            "args": [
+                "move",
+                "--src",
+                "${workspaceFolder}\\test\\move_test\\file1",
+                "--dest",
+                "${workspaceFolder}\\test\\move_test\\folder1",
+                "--flags",
+                "FOF_ALLOWUNDO|FOF_RENAMEONCOLLISION"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'ifop move files'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=ifop",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "example"
+                }
+            },
+            "args": [
+                "move",
+                "--src",
+                "${workspaceFolder}\\test\\move_test\\file1,${workspaceFolder}\\test\\move_test\\folder2",
+                "--dest",
+                "${workspaceFolder}\\test\\move_test\\folder1",
+                "--flags",
+                "FOF_ALLOWUNDO|FOF_RENAMEONCOLLISION"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'ifop'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=ifop",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
