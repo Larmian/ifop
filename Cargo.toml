@@ -12,7 +12,7 @@ homepage = "https://github.com/Larmian/ifop"
 documentation = "https://github.com/Larmian/ifop"
 categories = ["command-tool", "command-line-utilities", "file-operation", "com-interface"]
 description = "A simple to use IFileOperation command tool"
-keywords = ["ifop", "delete", "copy", "rename", "move", "uncycle bin", "IFileOperation", "undo", "redo"]
+keywords = ["ifop", "delete", "copy", "IFileOperation", "undo"]
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 
