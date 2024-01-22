@@ -5,7 +5,7 @@ path = "examples/ifop.rs"
 [package]
 authors = ["Larmian"]
 name = "ifop"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 repository = "https://github.com/Larmian/ifop"
 homepage = "https://github.com/Larmian/ifop"

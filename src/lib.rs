@@ -169,8 +169,12 @@ unsafe fn get_items(targets: Vec<&str>) -> Result<IShellItemArray> {
     SHCreateShellItemArrayFromIDLists(file_idlists.as_mut_slice())
 }
 
-unsafe fn get_operation() -> Result<IFileOperation> {
-    CoCreateInstance(&FileOperation, None, CLSCTX_ALL)
+unsafe fn get_operation(op: Option<FILEOPERATION_FLAGS>) -> Result<IFileOperation> {
+    let result:IFileOperation = CoCreateInstance(&FileOperation, None, CLSCTX_ALL)?;
+    if let Some(flags) = op {
+        result.SetOperationFlags(flags)?
+    }
+    Ok(result)
 }
  
 /// ### Copy multiple `files`
@@ -208,16 +212,9 @@ unsafe fn get_operation() -> Result<IFileOperation> {
 /// ```
 pub fn copy_files(src: Vec<&str>, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let operation = get_operation()?;
+        let operation = get_operation(flags)?;
 
-        if let Some(f) = flags {
-            operation.SetOperationFlags(f)?
-        }
-
-        let items = get_items(src.clone())?;
-        let dest_item = get_item(dest)?;
-
-        operation.CopyItems(&items, &dest_item)?;
+        operation.CopyItems(&get_items(src)?, &get_item(dest)?)?;
         operation.PerformOperations()
     }
 }
@@ -247,17 +244,9 @@ pub fn copy_files(src: Vec<&str>, dest: &str, flags: Option<FILEOPERATION_FLAGS>
 /// ```
 pub fn copy_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let operation = get_operation()?;
+        let operation = get_operation(flags)?;
 
-        if let Some(f) = flags {
-            operation.SetOperationFlags(f)?;
-        }
-
-        let src_item = get_item(src)?;
-        let dest_item = get_item(dest)?;
-
-        operation.CopyItem(&src_item, &dest_item, 
-            None, None)?;
+        operation.CopyItem(&get_item(src)?,&get_item(dest)?, None, None)?;
         operation.PerformOperations()
     }
 }
@@ -289,15 +278,9 @@ pub fn copy_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> R
 /// ```
 pub fn delete_file(target: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let operation = get_operation()?;
+        let operation = get_operation(flags)?;
 
-        if let Some(f) = flags {
-            operation.SetOperationFlags(f)?
-        }
-
-        let item = get_item(target)?;
-
-        operation.DeleteItem(&item, None)?;
+        operation.DeleteItem(&get_item(target)?, None)?;
         operation.PerformOperations()
     }
 }
@@ -338,15 +321,9 @@ pub fn delete_file(target: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<(
 /// ```
 pub fn delete_files(targets: Vec<&str>, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let operation = get_operation()?;
+        let operation = get_operation(flags)?;
 
-        if let Some(f) = flags {
-            operation.SetOperationFlags(f)?
-        }
-
-        let items = get_items(targets)?;
-
-        operation.DeleteItems(&items)?;
+        operation.DeleteItems(&get_items(targets)?)?;
         operation.PerformOperations()
     }
 }
@@ -377,15 +354,9 @@ pub fn delete_files(targets: Vec<&str>, flags: Option<FILEOPERATION_FLAGS>) -> R
 /// ```
 pub fn rename_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let operation = get_operation()?;
+        let operation = get_operation(flags)?;
 
-        if let Some(f) = flags {
-            operation.SetOperationFlags(f)?
-        }
-
-        let item = get_item(src)?;
-
-        operation.RenameItem(&item, &HSTRING::from(dest), None)?;
+        operation.RenameItem(&get_item(src)?, &HSTRING::from(dest), None)?;
         operation.PerformOperations()
     }
 }
@@ -427,15 +398,9 @@ pub fn rename_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) ->
 /// ```
 pub fn rename_files(targets: Vec<&str>, new_name: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let operation = get_operation()?;
+        let operation = get_operation(flags)?;
 
-        if let Some(f) = flags {
-            operation.SetOperationFlags(f)?
-        }
-
-        let items = get_items(targets)?;
-
-        operation.RenameItems(&items, &HSTRING::from(new_name))?;
+        operation.RenameItems(&get_items(targets)?, &HSTRING::from(new_name))?;
         operation.PerformOperations()
     }
 }
@@ -466,16 +431,9 @@ pub fn rename_files(targets: Vec<&str>, new_name: &str, flags: Option<FILEOPERAT
 /// ```
 pub fn move_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let operation = get_operation()?;
+        let operation = get_operation(flags)?;
 
-        if let Some(f) = flags {
-            operation.SetOperationFlags(f)?
-        }
-
-        let src_item = get_item(src)?;
-        let dest_item = get_item(dest)?;
-
-        operation.MoveItem(&src_item, &dest_item, None, None)?;
+        operation.MoveItem(&get_item(src)?, &get_item(dest)?, None, None)?;
         operation.PerformOperations()
     }
 }
@@ -517,16 +475,9 @@ pub fn move_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> R
 /// ```
 pub fn move_files(src: Vec<&str>, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let operation = get_operation()?;
+        let operation = get_operation(flags)?;
 
-        if let Some(f) = flags {
-            operation.SetOperationFlags(f)?
-        }
-
-        let src_items = get_items(src)?;
-        let dest_item = get_item(dest)?;
-
-        operation.MoveItems(&src_items, &dest_item)?;
+        operation.MoveItems(&get_items(src)?, &get_item(dest)?)?;
         operation.PerformOperations()
     }
 }
