@@ -1,24 +1,6 @@
 use std::collections::HashMap;
-
 use clap::{Parser, Subcommand};
-use windows::Win32::UI::Shell::FILEOPERATION_FLAGS;
-use windows::Win32::UI::Shell::FOF_ALLOWUNDO;
-use windows::Win32::UI::Shell::FOF_CONFIRMMOUSE;
-use windows::Win32::UI::Shell::FOF_FILESONLY;
-use windows::Win32::UI::Shell::FOF_MULTIDESTFILES;
-use windows::Win32::UI::Shell::FOF_NOCONFIRMATION;
-use windows::Win32::UI::Shell::FOF_NOCONFIRMMKDIR;
-use windows::Win32::UI::Shell::FOF_NOCOPYSECURITYATTRIBS;
-use windows::Win32::UI::Shell::FOF_NOERRORUI;
-use windows::Win32::UI::Shell::FOF_NORECURSEREPARSE;
-use windows::Win32::UI::Shell::FOF_NORECURSION;
-use windows::Win32::UI::Shell::FOF_NO_CONNECTED_ELEMENTS;
-use windows::Win32::UI::Shell::FOF_NO_UI;
-use windows::Win32::UI::Shell::FOF_RENAMEONCOLLISION;
-use windows::Win32::UI::Shell::FOF_SILENT;
-use windows::Win32::UI::Shell::FOF_SIMPLEPROGRESS;
-use windows::Win32::UI::Shell::FOF_WANTMAPPINGHANDLE;
-use windows::Win32::UI::Shell::FOF_WANTNUKEWARNING;
+use windows::Win32::UI::Shell::*;
 use windows_core::Result;
 use ifop::*;
 use windows::Win32::System::Com::COINIT_MULTITHREADED;
@@ -108,15 +90,17 @@ fn delete(target: &String, flags: Option<FILEOPERATION_FLAGS>) {
 }
 
 fn rename(target: &String, dest: &String, flags: Option<FILEOPERATION_FLAGS>) {
-    apply_command(
-        target, 
-        Some(dest), 
-        Some(rename_file), 
-        Some(rename_files), 
-        None, 
-        None,
-        flags
-    );
+    { 
+        apply_command(
+            target, 
+            Some(dest), 
+            Some(rename_file), 
+            Some(rename_files), 
+            None, 
+            None,
+            flags
+        );
+    }
 }
 
 fn _move(src: &String, dest: &String, flags: Option<FILEOPERATION_FLAGS>) {
@@ -209,13 +193,6 @@ enum Commands {
 
 }
 
-
-fn merge_flags(off: bool, flags: &mut FILEOPERATION_FLAGS, by_merge: &FILEOPERATION_FLAGS) {
-    if off {
-        flags.0 = flags.0 | by_merge.0
-    }
-}
-
 fn query_flags(cli_flags: &Option<String>) -> Option<FILEOPERATION_FLAGS> {
     let flags_map: HashMap<&str, FILEOPERATION_FLAGS> = HashMap::from([
         ("FOF_ALLOWUNDO", FOF_ALLOWUNDO),
@@ -270,6 +247,5 @@ fn main() {
         Commands::Move { src, dest, flags } => {
             _move(src, dest, query_flags(flags))
         }
-        _ => {}
     }
 }
