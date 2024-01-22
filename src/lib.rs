@@ -153,9 +153,9 @@
 use windows::Win32::UI::Shell::*;
 use windows::Win32::System::Com::{ CoCreateInstance, CLSCTX_ALL};
 use windows::core::*;
-use windows_core::{ComInterface, Result};
+use windows_core::Result;
 
-unsafe fn get_item<T: ComInterface>(target: &str) -> Result<T>{
+unsafe fn get_item(target: &str) -> Result<IShellItem>{
     SHCreateItemFromParsingName( &HSTRING::from(target), None)
 }
 
@@ -168,12 +168,17 @@ unsafe fn get_items(targets: Vec<&str>) -> Result<IShellItemArray> {
 
     SHCreateShellItemArrayFromIDLists(file_idlists.as_mut_slice())
 }
+
+unsafe fn get_operation() -> Result<IFileOperation> {
+    CoCreateInstance(&FileOperation, None, CLSCTX_ALL)
+}
  
 /// ### Copy multiple `files`
 /// ```
-/// let mut folders: Vec<&str> = Vec::new();
-/// folders.push("c:\\src\\file1.txt");
-/// folders.push("c:\\src\\file2.txt");
+/// let mut folders = vec![
+///     "c:\\src\\file1.txt",
+///     "c:\\src\\file2.txt"
+/// ];
 /// 
 /// match ifop::copy_files(folders, "c:\\dest", None) {
 ///     Ok(_) => {
@@ -183,14 +188,14 @@ unsafe fn get_items(targets: Vec<&str>) -> Result<IShellItemArray> {
 ///         println!("{}", e);
 ///     }
 /// }
-/// 
 /// ```
 /// 
 /// ### Copy multiple `folders`
 /// ```
-/// let mut folders: Vec<&str> = Vec::new();
-/// folders.push("c:\\src\\folder1");
-/// folders.push("c:\\src\\folder2");
+/// let mut folders = vec![
+///     "c:\\src\\folder1",
+///     "c:\\src\\folder2"
+/// ];
 /// 
 /// match ifop::copy_files(folders, "c:\\dest", None) {
 ///     Ok(_) => {
@@ -200,46 +205,20 @@ unsafe fn get_items(targets: Vec<&str>) -> Result<IShellItemArray> {
 ///         println!("{}", e);
 ///     }
 /// }
-/// 
 /// ```
 pub fn copy_files(src: Vec<&str>, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
-    if src.len() < 1 {
-        return Ok(())
-    }
-
     unsafe {
-        let result:Result<IFileOperation> = CoCreateInstance(&FileOperation, None, CLSCTX_ALL);
+        let operation = get_operation()?;
 
-        match result {
-            Ok(operation) => {
-
-                if let Some(f) = flags {
-                    if let Err(e) = operation.SetOperationFlags(f) {
-                        return Err(e)
-                    }
-                }
-
-                let item_array:Result<IShellItemArray> = get_items(src.clone());
-
-                match item_array {
-                    Ok(items) => {
-                        let de: Result<IShellItem> = SHCreateItemFromParsingName(&HSTRING::from(dest), None);
-                        
-                        match de {
-                            Ok(dest_item) => {
-                                if let Err(e) = operation.CopyItems(&items, &dest_item) {
-                                    return Err(e)
-                                }
-                                operation.PerformOperations()
-                            }
-                            Err(e) => Err(e)
-                        }
-                    }
-                    Err(e) => Err(e)
-                }
-            }
-            Err(e) => Err(e)
+        if let Some(f) = flags {
+            operation.SetOperationFlags(f)?
         }
+
+        let items = get_items(src.clone())?;
+        let dest_item = get_item(dest)?;
+
+        operation.CopyItems(&items, &dest_item)?;
+        operation.PerformOperations()
     }
 }
 
@@ -265,46 +244,21 @@ pub fn copy_files(src: Vec<&str>, dest: &str, flags: Option<FILEOPERATION_FLAGS>
 ///         println!("{}", e);
 ///     }
 /// }
-/// 
 /// ```
 pub fn copy_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let r:Result<IFileOperation> = CoCreateInstance(
-            &FileOperation, None, CLSCTX_ALL);
-            
-        match r {
-            Ok(operation) => {
+        let operation = get_operation()?;
 
-                if let Some(f) = flags {
-                    if let Err(e) = operation.SetOperationFlags(f) {
-                        return Err(e)
-                    }
-                }
-
-                let sr: Result<IShellItem> = get_item(src);
-                let de: Result<IShellItem> = get_item(dest);
-    
-                match sr {
-                    Ok(src_item) => {
-                        match de {
-                            Ok(dest_item) => {
-                                let result = operation.CopyItem(
-                                    &src_item, &dest_item, None, None);
-            
-                                if let Err(e) = result {
-                                    return Err(e)
-                                }
-                            
-                                operation.PerformOperations()
-                            }
-                            Err(e) => Err(e)
-                        }
-                    }
-                    Err(e) => Err(e)
-                }
-            }
-            Err(e) => Err(e)
+        if let Some(f) = flags {
+            operation.SetOperationFlags(f)?;
         }
+
+        let src_item = get_item(src)?;
+        let dest_item = get_item(dest)?;
+
+        operation.CopyItem(&src_item, &dest_item, 
+            None, None)?;
+        operation.PerformOperations()
     }
 }
 
@@ -332,43 +286,28 @@ pub fn copy_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> R
 ///         println!("{}", e);
 ///     }
 /// }
-/// 
 /// ```
 pub fn delete_file(target: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let result:Result<IFileOperation> = CoCreateInstance(&FileOperation, None, CLSCTX_ALL);
+        let operation = get_operation()?;
 
-        match result {
-            Ok(operation) => {
-
-                if let Some(f) = flags {
-                    if let Err(e) = operation.SetOperationFlags(f) {
-                        return Err(e)
-                    }
-                }
-
-                let tgt:Result<IShellItem> = get_item(target);
-
-                match tgt {
-                    Ok(target_item) => {
-                        if let Err(e) = operation.DeleteItem(&target_item, None) {
-                            return Err(e)
-                        }
-                        operation.PerformOperations()
-                    }
-                    Err(e) => Err(e)
-                }
-            }
-            Err(e) => Err(e)
+        if let Some(f) = flags {
+            operation.SetOperationFlags(f)?
         }
+
+        let item = get_item(target)?;
+
+        operation.DeleteItem(&item, None)?;
+        operation.PerformOperations()
     }
 }
 
 /// ### Delete multiple `files`
 /// ```rust
-/// let mut files: Vec<&str> = Vec::new();
-/// files.push("c:\\file1.txt");
-/// files.push("c:\\file2.txt");
+/// let mut files = vec![
+///     "c:\\file1.txt",
+///     "c:\\file2.txt"
+/// ];
 /// 
 /// match ifop::delete_files(files, None) {
 ///     Ok(_) => {
@@ -383,9 +322,10 @@ pub fn delete_file(target: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<(
 /// 
 /// ### Delete multiple `folders`
 /// ```rust
-/// let mut folders: Vec<&str> = Vec::new();
-/// folders.push("c:\\folder1");
-/// folders.push("c:\\folder2");
+/// let mut folders = vec![
+///     "c:\\folder1",
+///     "c:\\folder2"
+/// ];
 /// 
 /// match ifop::delete_files(folders, None) {
 ///     Ok(_) => {
@@ -395,35 +335,19 @@ pub fn delete_file(target: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<(
 ///         println!("{}", e);
 ///     }
 /// }
-/// 
 /// ```
 pub fn delete_files(targets: Vec<&str>, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let result:Result<IFileOperation> = CoCreateInstance(&FileOperation, None, CLSCTX_ALL);
+        let operation = get_operation()?;
 
-        match result {
-            Ok(operation) => {
-
-                if let Some(f) = flags {
-                    if let Err(e) = operation.SetOperationFlags(f) {
-                        return Err(e)
-                    }
-                }
-
-                let tgts: Result<IShellItemArray> = get_items(targets);
-
-                match tgts {
-                    Ok(target_items) => {
-                        if let Err(e) = operation.DeleteItems(&target_items) {
-                            return Err(e)
-                        }
-                        operation.PerformOperations()
-                    }
-                    Err(e) => Err(e)
-                }
-            }
-            Err(e) => Err(e)
+        if let Some(f) = flags {
+            operation.SetOperationFlags(f)?
         }
+
+        let items = get_items(targets)?;
+
+        operation.DeleteItems(&items)?;
+        operation.PerformOperations()
     }
 }
 
@@ -453,39 +377,25 @@ pub fn delete_files(targets: Vec<&str>, flags: Option<FILEOPERATION_FLAGS>) -> R
 /// ```
 pub fn rename_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let result:Result<IFileOperation> = CoCreateInstance(&FileOperation, None, CLSCTX_ALL);
+        let operation = get_operation()?;
 
-        match result {
-            Ok(operation) => {
-
-                if let Some(f) = flags {
-                    if let Err(e) = operation.SetOperationFlags(f) {
-                        return Err(e)
-                    }
-                }
-
-                let tgts: Result<IShellItem> = get_item(src);
-
-                match tgts {
-                    Ok(target_item) => {
-                        if let Err(e) = operation.RenameItem(&target_item, &HSTRING::from(dest), None) {
-                            return Err(e)
-                        }
-                        operation.PerformOperations()
-                    }
-                    Err(e) => Err(e)
-                }
-            }
-            Err(e) => Err(e)
+        if let Some(f) = flags {
+            operation.SetOperationFlags(f)?
         }
+
+        let item = get_item(src)?;
+
+        operation.RenameItem(&item, &HSTRING::from(dest), None)?;
+        operation.PerformOperations()
     }
 }
 
 /// ### Rename multiple `files`
 /// ```rust
-/// let mut files: Vec<&str> = Vec::new();
-/// files.push("c:\\folder1\\file1.txt");
-/// files.push("c:\\folder2\\file1.txt");
+/// let mut files = vec![
+///     "c:\\folder1\\file1.txt", 
+///     "c:\\folder1\\file1.txt"
+/// ];
 /// 
 /// match ifop::rename_files(files, "file2.txt", None) {
 ///     Ok(_) => {
@@ -500,9 +410,10 @@ pub fn rename_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) ->
 /// 
 /// ### Rename multiple `folders`
 /// ```rust
-/// let mut files: Vec<&str> = Vec::new();
-/// files.push("c:\\folder1\\folder1");
-/// files.push("c:\\folder2\\folder1");
+/// let mut files = vec![
+///     "c:\\folder1\\folder1", 
+///     "c:\\folder2\\folder1"
+/// ];
 /// 
 /// match ifop::rename_files(files, "folder2", None) {
 ///     Ok(_) => {
@@ -514,33 +425,18 @@ pub fn rename_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) ->
 /// }
 /// 
 /// ```
-pub fn rename_files(files_name: Vec<&str>, new_name: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
+pub fn rename_files(targets: Vec<&str>, new_name: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let result:Result<IFileOperation> = CoCreateInstance(&FileOperation, None, CLSCTX_ALL);
+        let operation = get_operation()?;
 
-        match result {
-            Ok(operation) => {
-
-                if let Some(f) = flags {
-                    if let Err(e) = operation.SetOperationFlags(f) {
-                        return Err(e)
-                    }
-                }
-
-                let tgts: Result<IShellItemArray> = get_items(files_name);
-
-                match tgts {
-                    Ok(target_items) => {
-                        if let Err(e) = operation.RenameItems(&target_items, &HSTRING::from(new_name)) {
-                            return Err(e)
-                        }
-                        operation.PerformOperations()
-                    }
-                    Err(e) => Err(e)
-                }
-            }
-            Err(e) => Err(e)
+        if let Some(f) = flags {
+            operation.SetOperationFlags(f)?
         }
+
+        let items = get_items(targets)?;
+
+        operation.RenameItems(&items, &HSTRING::from(new_name))?;
+        operation.PerformOperations()
     }
 }
 
@@ -570,46 +466,27 @@ pub fn rename_files(files_name: Vec<&str>, new_name: &str, flags: Option<FILEOPE
 /// ```
 pub fn move_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let result:Result<IFileOperation> = CoCreateInstance(&FileOperation, None, CLSCTX_ALL);
+        let operation = get_operation()?;
 
-        match result {
-            Ok(operation) => {
-
-                if let Some(f) = flags {
-                    if let Err(e) = operation.SetOperationFlags(f) {
-                        return Err(e)
-                    }
-                }
-
-                let sr: Result<IShellItem> = get_item(src);
-                let de: Result<IShellItem> = get_item(dest);
-
-                match sr {
-                    Ok(src_item) => {
-                        match de {
-                            Ok(dest_item) => {
-                                if let Err(e) = operation.MoveItem(&src_item, &dest_item, None, None) {
-                                    return Err(e)
-                                }
-                                operation.PerformOperations()
-                            }
-                            Err(e) => Err(e)
-                        }
-                    }
-                    Err(e) => Err(e)
-                }
-            }
-            Err(e) => Err(e)
+        if let Some(f) = flags {
+            operation.SetOperationFlags(f)?
         }
+
+        let src_item = get_item(src)?;
+        let dest_item = get_item(dest)?;
+
+        operation.MoveItem(&src_item, &dest_item, None, None)?;
+        operation.PerformOperations()
     }
 }
 
 
 /// ### Move multiple `files`
 /// ```rust
-/// let mut files: Vec<&str> = Vec::new();
-/// files.push("c:\\folder1");
-/// files.push("c:\\folder2");
+/// let mut files = vec![
+///     "c:\\folder1", 
+///     "c:\\folder2"
+/// ];
 /// 
 /// match ifop::move_files(files, "c:\\dest", None) {
 ///     Ok(_) => {
@@ -623,9 +500,10 @@ pub fn move_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> R
 /// ```
 /// ### Move multiple `folders`
 /// ```rust
-/// let mut files: Vec<&str> = Vec::new();
-/// files.push("c:\\src\\folder1");
-/// files.push("c:\\src\\folder2");
+/// let mut files = vec![
+///     "c:\\src\\folder1", 
+///     "c:\\src\\folder2"
+/// ];
 /// 
 /// match ifop::move_files(files, "c:\\dest", None) {
 ///     Ok(_) => {
@@ -637,38 +515,18 @@ pub fn move_file(src: &str, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> R
 /// }
 /// 
 /// ```
-pub fn move_files(files: Vec<&str>, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
+pub fn move_files(src: Vec<&str>, dest: &str, flags: Option<FILEOPERATION_FLAGS>) -> Result<()> {
     unsafe {
-        let result:Result<IFileOperation> = CoCreateInstance(&FileOperation, None, CLSCTX_ALL);
+        let operation = get_operation()?;
 
-        match result {
-            Ok(operation) => {
-
-                if let Some(f) = flags {
-                    if let Err(e) = operation.SetOperationFlags(f) {
-                        return Err(e)
-                    }
-                }
-
-                let fls: Result<IShellItemArray> = get_items(files);
-                let de: Result<IShellItem> = get_item(dest);
-    
-                match fls {
-                    Ok(files_array) => {
-                        match de {
-                            Ok(dest_item) => {
-                                if let Err(e) = operation.MoveItems(&files_array, &dest_item) {
-                                    return Err(e)
-                                }
-                                operation.PerformOperations()
-                            }
-                            Err(e) => Err(e)
-                        }
-                    }
-                    Err(e) => Err(e)
-                }
-            }
-            Err(e) => Err(e)
+        if let Some(f) = flags {
+            operation.SetOperationFlags(f)?
         }
+
+        let src_items = get_items(src)?;
+        let dest_item = get_item(dest)?;
+
+        operation.MoveItems(&src_items, &dest_item)?;
+        operation.PerformOperations()
     }
 }

@@ -3,8 +3,7 @@ use clap::{Parser, Subcommand};
 use windows::Win32::UI::Shell::*;
 use windows_core::Result;
 use ifop::*;
-use windows::Win32::System::Com::COINIT_MULTITHREADED;
-use windows::Win32::System::Com::CoInitializeEx;
+use windows::Win32::System::Com::{COINIT_MULTITHREADED, CoInitializeEx};
 
 fn dump_result(res: Result<()>) {
     match res {
@@ -226,7 +225,6 @@ fn query_flags(cli_flags: &Option<String>) -> Option<FILEOPERATION_FLAGS> {
 
         return Some(flags)
     }
-
 
     None
 }

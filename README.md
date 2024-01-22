@@ -10,23 +10,7 @@
 $ cargo add ifop
 ```
 
-
-## Usage: ifop.exe <COMMAND>
-
-```console
-Commands:
-  copy    Copy files from --src to --dest
-  delete  Delete files from --target
-  rename  Rename file from --src to --dest
-  move    Move files from --src to --dest
-  help    Print this message or the help of the given subcommand(s)
-
-Options:
-  -h, --help     Print help
-  -V, --version  Print version
-```
-
-## Crate Usage
+## Crate Examples
 
 - `Copy` single file
 ```rust
@@ -96,64 +80,64 @@ ifop::delete_file("c:\\src\\folder1"， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
 ifop::delete_files(vec!["c:\\src\\folder1\\file1.txt", "c:\\src\\folder2\\file2.txt"], None).unwrap();
 
 // With flags
-ifop::rename_files(vec!["c:\\src\\folder1\\file1.txt", "c:\\src\\folder2\\file2.txt"]， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
+ifop::delete_files(vec!["c:\\src\\folder1\\file1.txt", "c:\\src\\folder2\\file2.txt"]， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
 ```
 
 ## Command Usage
 
-Compile examples
+Compile
 ```console
 cargo build --examples
+cd target/debug/examples
 ```
 
-`Copy` single file
+Command examples
 ```console
+# Copy single file
 ifop copy --src <filename|folder> --dest <folder>
-```
 
-`Copy` multiple files
-```console
+# Copy multiple files
 ifop copy --src <filename|folder>,<filename|folder>... --dest <folder>
-```
 
-`Move` single file
-```console
+# Move single file
 ifop move --src <filename|folder> --dest <folder>
-```
 
-`Move` multiple files
-```console
+# Move multiple files
 ifop move --src <filename|folder>,<filename|folder>... --dest <folder>
-```
 
-`Rename` single file
-```console
+# Rename single file
 ifop rename --src <filename|folder> --dest <folder>
-```
 
-`Rename` multiple files
-```console
+# Rename multiple files
 ifop rename --src <filename|folder>,<filename|folder>... --dest <folder>
-```
 
-`Delete` single file
-```console
+# Delete single file
 ifop delete --target <filename|folder>
-```
 
-`Delete` multiple files
-```console
+# Delete multiple files
 ifop delete --target <filename|folder>,<filename|folder>...
-```
 
-With `--flags`
-```console
+# With '--flags'
 ifop <command> [options] --flags FOF_ALLOWUNDO|FOF_CONFIRMMOUSE|....
 ```
 
+## Usage
+
+```console
+Commands:
+  copy    Copy files from --src to --dest
+  delete  Delete files from --target
+  rename  Rename file from --src to --dest
+  move    Move files from --src to --dest
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+```
 
 |     Support                   |   Lower Version                               |
 |   -------------               |   -------------                               |
 |   Minimum supported client    |   Windows Vista [desktop apps only]           |
 |   Minimum supported server    |   Windows Server 2008 [desktop apps only]     |
-|   Target Platform             |   	Windows                                 |
+|   Target Platform             |   Windows                                     |
