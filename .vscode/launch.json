@@ -65,7 +65,7 @@
             "args": [
                 "copy",
                 "--src",
-                "${workspaceFolder}\\test\\delete_test",
+                "${workspaceFolder}\\test\\copy_test\\src\\folder1,${workspaceFolder}\\test\\copy_test\\src\\folder2,${workspaceFolder}\\test\\copy_test\\src\\file1",
                 "--dest",
                 "${workspaceFolder}\\test\\copy_test\\dest"
             ],
@@ -111,7 +111,7 @@
             "args": [
                 "delete",
                 "--target",
-                "${workspaceFolder}\\test\\copy_test\\dest\\delete_test\\file1,${workspaceFolder}\\test\\copy_test\\dest\\delete_test\\folder1\\file1,${workspaceFolder}\\test\\copy_test\\dest\\delete_test\\folder1\\folder1\\file1,${workspaceFolder}\\test\\copy_test\\dest\\delete_test\\folder1\\folder1,${workspaceFolder}\\test\\copy_test\\dest\\delete_test\\folder1",
+                "${workspaceFolder}\\test\\copy_test\\dest\\folder1,${workspaceFolder}\\test\\copy_test\\dest\\folder2,${workspaceFolder}\\test\\copy_test\\dest\\file1",
                 "--flags",
                 "FOF_ALLOWUNDO|FOF_NORECURSION"
             ],
@@ -159,9 +159,9 @@
             "args": [
                 "rename",
                 "--src",
-                "${workspaceFolder}\\test\\rename_test\\folder1\\file,${workspaceFolder}\\test\\rename_test\\file",
+                "${workspaceFolder}\\test\\copy_test\\dest\\folder1\\file1,${workspaceFolder}\\test\\copy_test\\dest\\folder2\\file1,${workspaceFolder}\\test\\copy_test\\dest\\file1",
                 "--dest",
-                "rename_file2"
+                "file3"
             ],
             "cwd": "${workspaceFolder}"
         },
@@ -209,11 +209,63 @@
             "args": [
                 "move",
                 "--src",
-                "${workspaceFolder}\\test\\move_test\\file1,${workspaceFolder}\\test\\move_test\\folder2",
+                "${workspaceFolder}\\test\\copy_test\\src\\folder1,${workspaceFolder}\\test\\copy_test\\src\\folder2,${workspaceFolder}\\test\\copy_test\\src\\file1",
                 "--dest",
-                "${workspaceFolder}\\test\\move_test\\folder1",
+                "${workspaceFolder}\\test\\copy_test\\dest",
                 "--flags",
                 "FOF_ALLOWUNDO|FOF_RENAMEONCOLLISION"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'ifop create folder'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=ifop",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "example"
+                }
+            },
+            "args": [
+                "new-folder",
+                "--root",
+                "${workspaceFolder}\\test\\copy_test\\dest",
+                "--name",
+                "folder1",
+                "--flags",
+                "FOF_ALLOWUNDO"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'ifop create file'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=ifop",
+                    "--package=ifop"
+                ],
+                "filter": {
+                    "name": "ifop",
+                    "kind": "example"
+                }
+            },
+            "args": [
+                "new-file",
+                "--root",
+                "${workspaceFolder}\\test\\copy_test\\dest",
+                "--name",
+                "file1",
+                "--flags",
+                "FOF_ALLOWUNDO"
             ],
             "cwd": "${workspaceFolder}"
         },

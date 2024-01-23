@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use clap::{Parser, Subcommand};
+use clap::{builder::Str, Parser, Subcommand};
 use windows::Win32::UI::Shell::*;
 use windows_core::Result;
 use ifop::*;
@@ -116,6 +116,32 @@ fn _move(src: &String, dest: &String, flags: Option<FILEOPERATION_FLAGS>) {
     }
 }
 
+fn new_folder(target: &String, dest: &String, flags: Option<FILEOPERATION_FLAGS>) {
+    {
+        apply_command(
+            target, 
+            Some(dest), 
+            Some(create_folder), 
+            None, 
+            None, 
+            None, flags
+        )
+    }
+}
+
+fn new_file(target: &String, dest: &String, flags: Option<FILEOPERATION_FLAGS>) {
+    {
+        apply_command(
+            target, 
+            Some(dest), 
+            Some(create_file), 
+            None, 
+            None, 
+            None, flags
+        )
+    }
+}
+
 #[derive(Parser)]
 #[command(author, version, about)]
 struct Args {
@@ -189,7 +215,37 @@ enum Commands {
         flags: Option<String>
     },
 
+    /// Create folder --root <root_path> --name <name>
+    NewFolder {
+        /// --root <root_path>
+        #[arg(short, long)]
+        root: String,
 
+        /// --name <folder_name>
+        #[arg(short, long)]
+        name: String,
+
+        /// --flags FOF_ALLOWUNDO|FOF_CONFIRMMOUSE|....
+        /// More refer in microsoft doc
+        #[arg(short, long)]
+        flags: Option<String>
+    },
+
+    /// Create file --root <root_path> --name <name>
+    NewFile {
+        /// --root <root_path>
+        #[arg(short, long)]
+        root: String,
+
+        /// --name <file_name>
+        #[arg(short, long)]
+        name: String,
+
+        /// --flags FOF_ALLOWUNDO|FOF_CONFIRMMOUSE|....
+        /// More refer in microsoft doc
+        #[arg(short, long)]
+        flags: Option<String>
+    }
 }
 
 fn query_flags(cli_flags: &Option<String>) -> Option<FILEOPERATION_FLAGS> {
@@ -244,6 +300,12 @@ fn main() {
         }
         Commands::Move { src, dest, flags } => {
             _move(src, dest, query_flags(flags))
+        }
+        Commands::NewFolder { root, name, flags } => {
+            new_folder(root, name, query_flags(flags))
+        }
+        Commands::NewFile { root, name, flags } => {
+            new_file(root, name, query_flags(flags))
         }
     }
 }
