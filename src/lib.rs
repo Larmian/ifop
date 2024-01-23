@@ -122,6 +122,30 @@
 //! )).unwrap();
 //! ```
 //! 
+//! - Create file
+//! ```rust
+//! // No flags
+//! ifop::create_file("c:\\", "file.txt", None).unwrap();
+//! 
+//! // With flags
+//! ifop::create_file("c:\\", "file.txt", Some(
+//!     windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+//!     windows::Win32::UI::Shell::FOF_NORECURSION
+//! )).unwrap();
+//! ```
+//! 
+//! - Create folder
+//! ```rust
+//! // No flags
+//! ifop::create_folder("c:\\", "folder", None).unwrap();
+//! 
+//! // With flags
+//! ifop::create_folder("c:\\", "folder", Some(
+//!     windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+//!     windows::Win32::UI::Shell::FOF_NORECURSION
+//! )).unwrap();
+//! ```
+//! 
 //! ## Command Usage
 //! 
 //! Compile examples
@@ -169,6 +193,16 @@
 //! ifop delete --target <filename|folder>,<filename|folder>...
 //! ```
 //! 
+//! Create file
+//! ```console
+//! ifop new-file --root <root_path> --name <name>
+//! ```
+//! 
+//! Create folder
+//! ```console
+//! ifop new-folder --root <root_path> --name <name>
+//! ```
+//! 
 //! With `--flags`
 //! ```console
 //! ifop <command> [options] --flags FOF_ALLOWUNDO|FOF_CONFIRMMOUSE|....
@@ -182,16 +216,6 @@ use windows_core::Result;
 
 unsafe fn get_item(target: &str) -> Result<IShellItem>{
     SHCreateItemFromParsingName( &HSTRING::from(target), None)
-}
-
-unsafe fn get_items(targets: Vec<&str>) -> Result<IShellItemArray> {
-    let mut file_idlists: Vec<*const Common::ITEMIDLIST> = Vec::new();
-
-    for path in targets {
-        file_idlists.push(SHSimpleIDListFromPath(&HSTRING::from(path)));
-    }
-
-    SHCreateShellItemArrayFromIDLists(file_idlists.as_mut_slice())
 }
 
 unsafe fn get_operation(op: Option<FILEOPERATION_FLAGS>) -> Result<IFileOperation> {
@@ -644,14 +668,4 @@ mod tests {
         assert_eq!(rename_file(src, "dest", None),  Ok(()));
         assert_eq!(delete_file(folder, None),  Ok(()));
     }
-
-    // #[test]
-    // fn test_delete_files() {
-    //     let curr_dir = std::env::current_dir().unwrap();
-    //     let root_dir = curr_dir.to_str().unwrap();
-    //     let folder = &format!("{}\\test\\folder1", root_dir) as &str;
-    //     println!("{}", folder.clone());
-    //     let _ = unsafe { CoInitializeEx(None, COINIT_MULTITHREADED) };
-    //     assert_eq!(create_file(folder, "file1", None),  Ok(()))
-    // }
 }

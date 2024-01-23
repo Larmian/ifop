@@ -18,7 +18,10 @@ $ cargo add ifop
 ifop::copy_file("c:\\src\\file.text", "c:\\dest"， None).unwrap();
 
 // With flags
-ifop::copy_file("c:\\src\\file.text", "c:\\dest"， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
+ifop::copy_file("c:\\src\\file.text", "c:\\dest"， Some(
+    windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+    windows::Win32::UI::Shell::FOF_NORECURSION
+)).unwrap();
 ```
 
 - `Copy` multiple files
@@ -27,7 +30,10 @@ ifop::copy_file("c:\\src\\file.text", "c:\\dest"， FOF_ALLOWUNDO|FOF_NORECURSIO
 ifop::copy_files(vec!["c:\\src\\file1.txt", "c:\\src\\file2.txt"], "c:\\dest", None).unwrap();
 
 // With flags
-ifop::copy_files(vec!["c:\\src\\file1.txt", "c:\\src\\file2.txt"], "c:\\dest"， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
+ifop::copy_files(vec!["c:\\src\\file1.txt", "c:\\src\\file2.txt"], "c:\\dest"， Some(
+    windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+    windows::Win32::UI::Shell::FOF_NORECURSION
+)).unwrap();
 ```
 
 - `Move` single file
@@ -36,7 +42,10 @@ ifop::copy_files(vec!["c:\\src\\file1.txt", "c:\\src\\file2.txt"], "c:\\dest"，
 ifop::move_file("c:\\src\\file.text", "c:\\dest"， None).unwrap();
 
 // With flags
-ifop::move_file("c:\\src\\file.text", "c:\\dest"， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
+ifop::move_file("c:\\src\\file.text", "c:\\dest"， Some(
+    windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+    windows::Win32::UI::Shell::FOF_NORECURSION
+)).unwrap();
 ```
 
 - `Move` multiple files
@@ -45,7 +54,10 @@ ifop::move_file("c:\\src\\file.text", "c:\\dest"， FOF_ALLOWUNDO|FOF_NORECURSIO
 ifop::move_files(vec!["c:\\src\\file1.txt", "c:\\src\\file2.txt"], "c:\\dest", None).unwrap();
 
 // With flags
-ifop::move_files(vec!["c:\\src\\file1.txt", "c:\\src\\file2.txt"], "c:\\dest"， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
+ifop::move_files(vec!["c:\\src\\file1.txt", "c:\\src\\file2.txt"], "c:\\dest"， Some(
+    windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+    windows::Win32::UI::Shell::FOF_NORECURSION
+)).unwrap();
 ```
 
 - `Rename` single file
@@ -54,7 +66,10 @@ ifop::move_files(vec!["c:\\src\\file1.txt", "c:\\src\\file2.txt"], "c:\\dest"，
 ifop::rename_file("c:\\src\\folder1", "folder2"， None).unwrap();
 
 // With flags
-ifop::rename_file("c:\\src\\folder1", "folder2"， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
+ifop::rename_file("c:\\src\\folder1", "folder2"， Some(
+    windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+    windows::Win32::UI::Shell::FOF_NORECURSION
+)).unwrap();
 ```
 
 - `Rename` multiple files
@@ -63,7 +78,10 @@ ifop::rename_file("c:\\src\\folder1", "folder2"， FOF_ALLOWUNDO|FOF_NORECURSION
 ifop::rename_files(vec!["c:\\src\\folder1\\file1.txt", "c:\\src\\folder2\\file2.txt"], "file3.txt", None).unwrap();
 
 // With flags
-ifop::rename_files(vec!["c:\\src\\folder1\\file1.txt", "c:\\src\\folder2\\file2.txt"], "file3.txt"， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
+ifop::rename_files(vec!["c:\\src\\folder1\\file1.txt", "c:\\src\\folder2\\file2.txt"], "file3.txt"， Some(
+    windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+    windows::Win32::UI::Shell::FOF_NORECURSION
+)).unwrap();
 ```
 
 - `Delete` single file
@@ -71,7 +89,10 @@ ifop::rename_files(vec!["c:\\src\\folder1\\file1.txt", "c:\\src\\folder2\\file2.
 // No flags
 ifop::delete_file("c:\\src\\folder1"， None).unwrap();
 // With flags
-ifop::delete_file("c:\\src\\folder1"， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
+ifop::delete_file("c:\\src\\folder1"， Some(
+    windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+    windows::Win32::UI::Shell::FOF_NORECURSION
+)).unwrap();
 ```
 
 - `Delete` multiple files
@@ -80,7 +101,34 @@ ifop::delete_file("c:\\src\\folder1"， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
 ifop::delete_files(vec!["c:\\src\\folder1\\file1.txt", "c:\\src\\folder2\\file2.txt"], None).unwrap();
 
 // With flags
-ifop::delete_files(vec!["c:\\src\\folder1\\file1.txt", "c:\\src\\folder2\\file2.txt"]， FOF_ALLOWUNDO|FOF_NORECURSION).unwrap();
+ifop::delete_files(vec!["c:\\src\\folder1\\file1.txt", "c:\\src\\folder2\\file2.txt"]， Some(
+    windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+    windows::Win32::UI::Shell::FOF_NORECURSION
+)).unwrap();
+```
+
+- Create file
+```rust
+// No flags
+ifop::create_file("c:\\", "file.txt", None).unwrap();
+
+// With flags
+ifop::create_file("c:\\", "file.txt", Some(
+    windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+    windows::Win32::UI::Shell::FOF_NORECURSION
+)).unwrap();
+```
+
+- Create folder
+```rust
+// No flags
+ifop::create_folder("c:\\", "folder", None).unwrap();
+
+// With flags
+ifop::create_folder("c:\\", "folder", Some(
+    windows::Win32::UI::Shell::FOF_ALLOWUNDO |
+    windows::Win32::UI::Shell::FOF_NORECURSION
+)).unwrap();
 ```
 
 ## Command Usage
@@ -117,7 +165,13 @@ ifop delete --target <filename|folder>
 # Delete multiple files
 ifop delete --target <filename|folder>,<filename|folder>...
 
-# With '--flags'
+# Create file
+ifop new-file --root <root_path> --name <name>
+
+# Create folder
+ifop new-folder --root <root_path> --name <name>
+
+# With `--flags`
 ifop <command> [options] --flags FOF_ALLOWUNDO|FOF_CONFIRMMOUSE|....
 ```
 
