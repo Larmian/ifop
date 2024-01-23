@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use clap::{builder::Str, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 use windows::Win32::UI::Shell::*;
 use windows_core::Result;
 use ifop::*;
